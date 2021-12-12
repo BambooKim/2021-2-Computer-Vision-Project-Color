@@ -14,12 +14,20 @@
 using namespace std;
 using namespace cv;
 
-extern double** xConvolvMat;
-extern double** yConvolvMat;
-extern double** magnitudes;
+extern double** xBlueConvolv;
+extern double** yBlueConvolvMat;
+extern double** BlueMagnitudes;
 
-Mat cannyEdgeDouble(Mat* mat);
-Mat cannyEdgeTriple(Mat* mat);
+extern double** xGreenConvolv;
+extern double** yGreenConvolvMat;
+extern double** GreenMagnitudes;
+
+extern double** xRedConvolvMat;
+extern double** yRedConvolvMat;
+extern double** RedMagnitudes;
+
+Mat cannyEdgeDouble(Mat* mat, double threshold_high, double threshold_low);
+Mat cannyEdgeTriple(Mat* mat, double threshold_high, double threshold_mid, double threshold_low);
 Mat nonMaxSuppress(Mat* mat);
 
 #endif /* canny_hpp */

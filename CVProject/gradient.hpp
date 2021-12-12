@@ -15,9 +15,17 @@
 using namespace std;
 using namespace cv;
 
-extern double** xConvolvMat;
-extern double** yConvolvMat;
-extern double** magnitudes;
+extern double** xBlueConvolv;
+extern double** yBlueConvolv;
+extern double** BlueMagnitudes;
+
+extern double** xGreenConvolv;
+extern double** yGreenConvolv;
+extern double** GreenMagnitudes;
+
+extern double** xRedConvolv;
+extern double** yRedConvolv;
+extern double** RedMagnitudes;
 
 void gradXFilter(Mat* mat);
 void gradYFilter(Mat* mat);

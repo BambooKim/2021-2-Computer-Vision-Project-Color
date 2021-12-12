@@ -45,89 +45,122 @@ Mat gaussianFilter(Mat* mat, int kernelSize, double sigma) {
     double* kernel = create1DGaussianKernel(size, sigma);
     
     // 최종 convolution 계산값... scale 보정 전의 값.
-    double** convolvMat = new double*[height];
+    double** BlueConvolvMat = new double*[height];
+    double** GreenConvolvMat = new double*[height];
+    double** RedConvolvMat = new double*[height];
+    
     // x방향 convolution 계산값을 저장할 2차원 배열
-    double** _xConvolvMat = new double*[height];
+    double** _xBlueConvolvMat = new double*[height];
+    double** _xGreenConvolvMat = new double*[height];
+    double** _xRedConvolvMat = new double*[height];
     
     for (int i = 0; i < height; i++) {
-        convolvMat[i] = new double[width];
-        _xConvolvMat[i] = new double[width];
+        BlueConvolvMat[i] = new double[width];
+        GreenConvolvMat[i] = new double[width];
+        RedConvolvMat[i] = new double[width];
+        
+        _xBlueConvolvMat[i] = new double[width];
+        _xGreenConvolvMat[i] = new double[width];
+        _xRedConvolvMat[i] = new double[width];
     }
+    
+    double*** ConvolvMat = new double**[3];
+    ConvolvMat[0] = BlueConvolvMat;
+    ConvolvMat[1] = GreenConvolvMat;
+    ConvolvMat[2] = RedConvolvMat;
+    
+    double*** _xConvolvMat = new double**[3];
+    _xConvolvMat[0] = _xBlueConvolvMat;
+    _xConvolvMat[1] = _xGreenConvolvMat;
+    _xConvolvMat[2] = _xRedConvolvMat;
     
     long double min = 1.79E+308;
     long double max = 0;
     
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            double temp = 0;
-            
-            // 가우시안 커널과 이미지를 가지고 x방향 convolution
-            for (int i = 0; i < size; i++) {
-                if (0 <= x + i - size / 2 && x + i - size / 2 <= width) {
-                    temp = temp + kernel[i] * (double) src.at<uchar>(x + i - size / 2, y);
-                } else {
-                    temp = 0;
-                }
-            }
-            
-            if (min > temp)
-                min = temp;
-            if (max < temp)
-                max = temp;
-            
-            _xConvolvMat[y][x] = temp;
-        }
-    }
-    
-    long double MAX = max;
-    min = 1.79E+308;
-    max = 0;
-    
-    
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            double temp = 0;
-            
-            // x convolution의 최댓값을 이용하여 scale을 보정한다.
-            // 보정한 값과 커널을 이용하여 y 방향 convolution.
-            for (int i = 0; i < size; i++) {
-                int num = y + i - size / 2;
-                if (!(0 <= num && num < height)) {
-                    num = 0;
+    for (int z = 0; z < 3; z++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                double temp = 0;
+                
+                // 가우시안 커널과 이미지를 가지고 x방향 convolution
+                for (int i = 0; i < size; i++) {
+                    if (0 <= x + i - size / 2 && x + i - size / 2 <= width) {
+                        temp = temp + kernel[i] * (double) src.at<Vec3b>(x + i - size / 2, y)[z];
+                    } else {
+                        temp = 0;
+                    }
                 }
                 
-                double data = _xConvolvMat[num][x];
+                if (min > temp)
+                    min = temp;
+                if (max < temp)
+                    max = temp;
                 
-                data = data / (MAX / 255.0 + 1);
-                temp = temp + kernel[i] * data;
+                _xConvolvMat[z][y][x] = temp;
             }
-            
-            if (min > temp)
-                min = temp;
-            if (max < temp)
-                max = temp;
-            
-            convolvMat[y][x] = temp;
         }
-    }
-    
-    // 최종 convolution의 최댓값을 이용하여 scale을 보정한다.
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            double data = convolvMat[y][x];
-            data = data / (max / 255.0 + 1);
-            
-            src.at<uchar>(x, y) = data;
+        
+        long double MAX = max;
+        min = 1.79E+308;
+        max = 0;
+        
+        
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                double temp = 0;
+                
+                // x convolution의 최댓값을 이용하여 scale을 보정한다.
+                // 보정한 값과 커널을 이용하여 y 방향 convolution.
+                for (int i = 0; i < size; i++) {
+                    int num = y + i - size / 2;
+                    if (!(0 <= num && num < height)) {
+                        num = 0;
+                    }
+                    
+                    double data = _xConvolvMat[z][num][x];
+                    
+                    data = data / (MAX / 255.0 + 1);
+                    temp = temp + kernel[i] * data;
+                }
+                
+                if (min > temp)
+                    min = temp;
+                if (max < temp)
+                    max = temp;
+                
+                ConvolvMat[z][y][x] = temp;
+            }
+        }
+        
+        // 최종 convolution의 최댓값을 이용하여 scale을 보정한다.
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                double data = ConvolvMat[z][y][x];
+                data = data / (max / 255.0 + 1);
+                
+                src.at<Vec3b>(x, y)[z] = data;
+            }
         }
     }
     
     delete[] kernel;
     for (int i = 0; i < height; i++) {
-        delete[] _xConvolvMat[i];
-        delete[] convolvMat[i];
+        delete[] _xBlueConvolvMat[i];
+        delete[] _xGreenConvolvMat[i];
+        delete[] _xRedConvolvMat[i];
+        delete[] BlueConvolvMat[i];
+        delete[] GreenConvolvMat[i];
+        delete[] RedConvolvMat[i];
     }
+    delete[] _xBlueConvolvMat;
+    delete[] _xGreenConvolvMat;
+    delete[] _xRedConvolvMat;
+    delete[] BlueConvolvMat;
+    delete[] GreenConvolvMat;
+    delete[] RedConvolvMat;
+    
     delete[] _xConvolvMat;
-    delete[] convolvMat;
+    delete[] ConvolvMat;
     
     return src;
 }
