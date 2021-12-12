@@ -7,7 +7,6 @@
 
 #include "gradient.hpp"
 
-//#define threshold
 #define none
 #define PRODUCT 2
 
@@ -26,7 +25,7 @@ double** xRedConvolv;
 double** yRedConvolv;
 double** RedMagnitudes;
 
-// x방향의 gradient를 구하고 화면에 보여주는 함수.
+// x방향의 gradient를 구하는 함수.
 void gradXFilter(Mat* mat) {
     Mat src;
     (*mat).copyTo(src);
@@ -67,7 +66,7 @@ void gradXFilter(Mat* mat) {
             }
         
             // Mat 구조체에 저장하면 음수는 자동으로 값이 양수로 변하므로
-            // xConvolvMat에 x방향의 gradient 값을 저장한다.
+            // 배열에 x방향의 gradient 값을 저장한다.
             xBlueConvolv[y][x] = xb_gra;
             xGreenConvolv[y][x] = xg_gra;
             xRedConvolv[y][x] = xr_gra;
@@ -89,10 +88,7 @@ void gradXFilter(Mat* mat) {
                 rmax = xg_gra;
         }
     }
-    
-    // gradient의 최소와 최대값
-    // cout << min << " " << max << endl;
-    
+      
     for (int y = 1; y < height - 1; y++) {
         for (int x = 1; x < width - 1; x++) {
             
@@ -125,7 +121,7 @@ void gradYFilter(Mat* mat) {
     int width = src.size().width;
     int height = src.size().height;
     
-    // x convolution filter
+    // y convolution filter
     // gradient
     int y_kernel[3] = { 1, 0, -1 };
        
@@ -139,7 +135,7 @@ void gradYFilter(Mat* mat) {
     for (int y = 1; y < height - 1 ; y++) {
         for (int x = 1; x < width - 1; x++) {
             
-            // x 방향의 부분 픽셀값.
+            // y 방향의 부분 픽셀값.
             int y_img[3][3];
             for (int i = -1; i < 2; i++) {
                 y_img[0][i + 1] = (int) src.at<Vec3b>(x, y + i)[0];
@@ -147,7 +143,7 @@ void gradYFilter(Mat* mat) {
                 y_img[2][i + 1] = (int) src.at<Vec3b>(x, y + i)[2];
             }
             
-            // x kernel과 x 방향의 부분 픽셀값 convolution.
+            // y kernel과 y 방향의 부분 픽셀값 convolution.
             int yb_gra = 0;
             int yg_gra = 0;
             int yr_gra = 0;
@@ -158,7 +154,7 @@ void gradYFilter(Mat* mat) {
             }
         
             // Mat 구조체에 저장하면 음수는 자동으로 값이 양수로 변하므로
-            // xConvolvMat에 x방향의 gradient 값을 저장한다.
+            // 배열에 y방향의 gradient 값을 저장한다.
             yBlueConvolv[y][x] = yb_gra;
             yGreenConvolv[y][x] = yg_gra;
             yRedConvolv[y][x] = yr_gra;
@@ -180,9 +176,6 @@ void gradYFilter(Mat* mat) {
                 rmax = yg_gra;
         }
     }
-    
-    // gradient의 최소와 최대값
-    // cout << min << " " << max << endl;
     
     for (int y = 1; y < height - 1; y++) {
         for (int x = 1; x < width - 1; x++) {
@@ -224,15 +217,11 @@ Mat gradFilter(Mat* mat) {
             double bmagnitude = sqrt(xBlueConvolv[y][x] * xBlueConvolv[y][x] + yBlueConvolv[y][x] * yBlueConvolv[y][x]);
             double gmagnitude = sqrt(xGreenConvolv[y][x] * xGreenConvolv[y][x] + yGreenConvolv[y][x] * yGreenConvolv[y][x]);
             double rmagnitude = sqrt(xRedConvolv[y][x] * xRedConvolv[y][x] + yRedConvolv[y][x] * yRedConvolv[y][x]);
-
-          //  cout << bmagnitude << " " << gmagnitude << " " << rmagnitude << endl;
             
 #ifdef none
             src.at<Vec3b>(x, y)[0] = bmagnitude;
             src.at<Vec3b>(x, y)[1] = gmagnitude;
             src.at<Vec3b>(x, y)[2] = rmagnitude;
-            
-            
 #endif
             
             // 전역 변수 2차원 배열 magnitudes에 magnitude값을 저장한다.

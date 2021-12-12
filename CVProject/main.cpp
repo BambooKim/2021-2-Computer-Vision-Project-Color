@@ -78,6 +78,8 @@ int main(int argc, const char * argv[]) {
     //cin >> fileName;
     fileName = "IMG_5624.jpeg";
     String filePath = "/Users/bambookim/Desktop/CVProject2/CVProject/" + fileName;
+    String saveDirPath = "/Users/bambookim/Desktop/CVProject2/CVProject/result/report/";
+    
     Mat src = imread(filePath);
     
     imshow("asdf", src);
@@ -95,16 +97,32 @@ int main(int argc, const char * argv[]) {
     // 전역 변수 2차원 배열 xConvolvMat와 yConvolvMat를 동적 할당한다.
     initGlobalArray(width, height);
     
-    Mat gausGradNon = src.clone();
+    
+    // imwrite(saveDirPath + "jongseong_grad_color.jpg", src);
+    src = gaussianFilter(&src, 15, 3);
+    src = gradFilter(&src);
+    src = cannyEdgeTriple(&src, 6.8, 4, 1.2);
+    imwrite(saveDirPath + "jongseong_cannytriple_15_3_6.8_4_1.2_color.jpg", src);
+    
+    //Mat gausGradNon = src.clone();
+    
+    /*
+    gausGradNon = gaussianFilter(&gausGradNon, 15, 3);
+    imshow("gaussian", gausGradNon);
+    waitKey();
     gausGradNon = gradFilter(&gausGradNon);
-    gausGradNon = gaussianFilter(&gausGradNon, 25, 10);
+    imshow("gau-grad", gausGradNon);
+    waitKey();
+    
+    imwrite("/Users/bambookim/Desktop/CVProject2/CVProject/result/ㅁㄴㅇㄹsmoothing_grad_15_3.jpg", gausGradNon);
     //gausGradNon = cannyEdgeDouble(&gausGradNon, 8, 2);
-    gausGradNon = cannyEdgeTriple(&gausGradNon, 8, 7.5, 3);
+    
+    gausGradNon = cannyEdgeTriple(&gausGradNon, 6.8, 3.5, 1.1);
     imshow("cannyTriple", gausGradNon);
     waitKey();
 
-    imwrite("/Users/bambookim/Desktop/CVProject2/CVProject/result/color_triple_js_s10_h8_m7.5_l3.jpg", gausGradNon);
-    
+    imwrite("/Users/bambookim/Desktop/CVProject2/CVProject/result/ㅁㄴㅇㄹpro5_15color_triple_js_s3_h6.8_m3.5_l1.1.jpg", gausGradNon);
+    */
     // 동적 할당을 해제한다.
     deleteGlobalArray(height);
     
