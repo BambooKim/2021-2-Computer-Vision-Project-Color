@@ -75,15 +75,11 @@ void deleteGlobalArray(int height) {
 int main(int argc, const char * argv[]) {
     // 이미지 파일을 회색으로 읽어들인다. 해당 정보는 OpenCV의 Mat 구조체에 저장된다.
     string fileName;
-    //cin >> fileName;
     fileName = "IMG_5624.jpeg";
     String filePath = "/Users/bambookim/Desktop/CVProject2/CVProject/" + fileName;
     String saveDirPath = "/Users/bambookim/Desktop/CVProject2/CVProject/result/report/";
     
     Mat src = imread(filePath);
-    
-    imshow("asdf", src);
-    waitKey();
     
     // 이미지의 가로, 세로, 채널 정보를 얻는다.
     int width = src.size().width;
@@ -101,8 +97,11 @@ int main(int argc, const char * argv[]) {
     // imwrite(saveDirPath + "jongseong_grad_color.jpg", src);
     src = gaussianFilter(&src, 15, 3);
     src = gradFilter(&src);
-    src = cannyEdgeTriple(&src, 6.8, 4, 1.2);
-    imwrite(saveDirPath + "jongseong_cannytriple_15_3_6.8_4_1.2_color.jpg", src);
+    src = cannyEdgeTriple(&src, 6.3, 4, 1.7);
+    imshow("cannyTriple", src);
+    waitKey();
+    imwrite(saveDirPath + "__jongseong_cannytriple_15_3_6.3_4_1.7_color.jpg", src);
+    
     
     //Mat gausGradNon = src.clone();
     
